@@ -8,6 +8,12 @@ from datetime import datetime
 app = Flask(__name__)
 ACCESS_TOKEN = os.getenv("GDRIVE_ACCESS_TOKEN")
 
+# ✅ 欢迎页，Render 首页访问不再显示 404
+@app.route("/", methods=["GET"])
+def index():
+    return "✅ GPT Drive Assistant is running. Use /generate-ppt or /folders/<folder_id>/list to start."
+
+# ✅ 生成 PPT 文件接口
 @app.route("/generate-ppt", methods=["POST"])
 def generate_ppt():
     data = request.get_json()
@@ -29,12 +35,12 @@ def generate_ppt():
     prs.save(filepath)
     return jsonify({"download_url": f"/download-ppt/{filename}"})
 
-
+# ✅ 下载 PPT 文件
 @app.route("/download-ppt/<filename>", methods=["GET"])
 def download_ppt(filename):
     return send_file(os.path.join("generated_ppt", filename), as_attachment=True)
 
-
+# ✅ 列出 Google Drive 文件夹内容
 @app.route("/folders/<folder_id>/list", methods=["GET"])
 def list_folder_files(folder_id):
     headers = {
@@ -45,11 +51,5 @@ def list_folder_files(folder_id):
         "fields": "files(id,name,mimeType)",
         "pageSize": 100
     }
-    response = requests.get("https://www.googleapis.com/drive/v3/files", headers=headers, params=params)
-    if response.status_code != 200:
-        return jsonify({"error": response.text}), response.status_code
-    return jsonify(response.json().get("files", []))
+    response = requests.get("https://www.googleapis.com/drive/v3
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
