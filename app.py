@@ -51,5 +51,10 @@ def list_folder_files(folder_id):
         "fields": "files(id,name,mimeType)",
         "pageSize": 100
     }
-    response = requests.get("https://www.googleapis.com/drive/v3
+    response = requests.get("https://www.googleapis.com/drive/v3/files", headers=headers, params=params)
+    if response.status_code != 200:
+        return jsonify({"error": response.text}), response.status_code
+    return jsonify(response.json().get("files", []))
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
