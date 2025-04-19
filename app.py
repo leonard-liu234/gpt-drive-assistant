@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from pptx import Presentation
 from pptx.util import Inches
@@ -9,9 +8,13 @@ from datetime import datetime
 app = Flask(__name__)
 ACCESS_TOKEN = os.getenv("GDRIVE_ACCESS_TOKEN")
 
-@app.route("/", methods=["GET"])
+@app.route("/")
 def index():
     return "✅ GPT Drive Assistant is running. Use /generate-ppt or /folders/<folder_id>/list to start."
+
+@app.route("/.well-known/ai-plugin.json")
+def serve_manifest():
+    return send_from_directory(".well-known", "ai-plugin.json", mimetype="application/json")
 
 @app.route("/generate-ppt", methods=["POST"])
 def generate_ppt():
@@ -22,10 +25,14 @@ def generate_ppt():
     body = slide.placeholders[1]
     title.text = "确认函摘要"
     body.text = (
-        f"项目名称：{data.get('project_name')}\n"
-        f"客户名称：{data.get('client_name')}\n"
-        f"联系方式：{data.get('contact')}\n"
-        f"报价编号：{data.get('quote_number')}\n"
+        f"项目名称：{data.get('project_name')}
+"
+        f"客户名称：{data.get('client_name')}
+"
+        f"联系方式：{data.get('contact')}
+"
+        f"报价编号：{data.get('quote_number')}
+"
         f"报价日期：{data.get('quote_date')}"
     )
     os.makedirs("generated_ppt", exist_ok=True)
@@ -34,15 +41,14 @@ def generate_ppt():
     prs.save(filepath)
     return jsonify({"download_url": f"/download-ppt/{filename}"})
 
+
 @app.route("/download-ppt/<filename>", methods=["GET"])
 def download_ppt(filename):
     return send_file(os.path.join("generated_ppt", filename), as_attachment=True)
 
 @app.route("/folders/<folder_id>/list", methods=["GET"])
 def list_folder_files(folder_id):
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}"
-    }
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
     params = {
         "q": f"'{folder_id}' in parents",
         "fields": "files(id,name,mimeType)",
@@ -53,17 +59,5 @@ def list_folder_files(folder_id):
         return jsonify({"error": response.text}), response.status_code
     return jsonify(response.json().get("files", []))
 
-@app.route("/.well-known/ai-plugin.json", methods=["GET"])
-def serve_manifest():
-    return send_from_directory("static/.well-known", "ai-plugin.json", mimetype="application/json")
-
-@app.route("/openapi.yaml", methods=["GET"])
-def serve_openapi_yaml():
-    return send_from_directory("static", "openapi.yaml", mimetype="text/yaml")
-
-@app.route("/logo.png", methods=["GET"])
-def serve_logo():
-    return send_from_directory("static", "logo.png", mimetype="image/png")
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)
