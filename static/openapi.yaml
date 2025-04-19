@@ -1,97 +1,137 @@
 openapi: 3.1.0
 info:
-  title: Google Drive PDF Reader
-  version: 1.0.1
-  description: Download and list PDF files from Google Drive folders for analysis.
-
+  title: GPT Drive Assistant
+  version: 1.0.0
+  description: Generate PowerPoint confirmation slides and access Google Drive folders/files.
 servers:
-  - url: https://www.googleapis.com/drive/v3
+  - url: https://gpt-drive-assistant.onrender.com
 
 paths:
-  /files:
+  /:
     get:
-      operationId: listFiles
-      summary: List files in a specific Drive folder
-      parameters:
-        - name: q
-          in: query
-          required: true
-          description: Query string to filter files (e.g., "'FOLDER_ID' in parents")
-          schema:
-            type: string
-        - name: fields
-          in: query
-          required: false
-          description: Optional fields to return (e.g., "files(id,name,mimeType)")
-          schema:
-            type: string
-            default: files(id,name,mimeType)
-        - name: pageSize
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 100
+      operationId: healthCheck
+      summary: Check if backend is running
       responses:
         "200":
-          description: A list of files
+          description: Health OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /.well-known/ai-plugin.json:
+    get:
+      operationId: pluginManifest
+      summary: Get AI Plugin metadata
+      responses:
+        "200":
+          description: Plugin metadata
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /generate-ppt:
+    post:
+      operationId: generatePPT
+      summary: Generate a PowerPoint confirmation file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                project_name:
+                  type: string
+                client_name:
+                  type: string
+                quote_number:
+                  type: string
+                quote_date:
+                  type: string
+                contact:
+                  type: string
+      responses:
+        "200":
+          description: Download URL for generated PPT
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  files:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                        name:
-                          type: string
-                        mimeType:
-                          type: string
+                  download_url:
+                    type: string
 
-  /files/{fileId}:
+  /download-ppt/{filename}:
     get:
-      operationId: getFileMetadata
-      summary: Get metadata of a file by ID
+      operationId: downloadPPT
+      summary: Download generated PowerPoint file
       parameters:
-        - name: fileId
+        - name: filename
           in: path
           required: true
           schema:
             type: string
       responses:
         "200":
-          description: File metadata
+          description: Download PPT file
           content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  mimeType:
-                    type: string
-
-  /files/{fileId}/download:
-    get:
-      operationId: downloadPdf
-      summary: Download PDF content by file ID
-      parameters:
-        - name: fileId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: PDF file content
-          content:
-            application/pdf:
+            application/vnd.openxmlformats-officedocument.presentationml.presentation:
               schema:
                 type: string
                 format: binary
+
+  /folders/{folderId}/list:
+    get:
+      operationId: listFolderFiles
+      summary: List files in a Google Drive folder
+      parameters:
+        - name: folderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Files list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    mimeType:
+                      type: string
+
+  /folders/{folderId}/recursive-files:
+    get:
+      operationId: listRecursiveFiles
+      summary: Recursively list all files (including subfolders)
+      parameters:
+        - name: folderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All files recursively
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    mimeType:
+                      type: string
