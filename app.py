@@ -1,10 +1,11 @@
+
 from flask import Flask, request, jsonify, send_file
 from pptx import Presentation
 import os
 import requests
 from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", static_url_path="")
 ACCESS_TOKEN = os.getenv("GDRIVE_ACCESS_TOKEN")
 
 @app.route("/", methods=["GET"])
@@ -13,7 +14,7 @@ def index():
 
 @app.route("/.well-known/ai-plugin.json", methods=["GET"])
 def plugin_manifest():
-    return send_file("ai-plugin.json", mimetype="application/json")
+    return send_file("static/.well-known/ai-plugin.json", mimetype="application/json")
 
 @app.route("/generate-ppt", methods=["POST"])
 def generate_ppt():
