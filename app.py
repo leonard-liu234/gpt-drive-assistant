@@ -1,5 +1,7 @@
+
 from flask import Flask, request, jsonify, send_file
 from pptx import Presentation
+from pptx.util import Inches
 import os
 import requests
 from datetime import datetime
@@ -19,23 +21,26 @@ def generate_ppt():
     title = slide.shapes.title
     body = slide.placeholders[1]
     title.text = "确认函摘要"
-    body.text = f"""项目名称：{data.get('project_name')}
-      客户名称：{data.get('client_name')}
-      联系方式：{data.get('contact')}
-      报价编号：{data.get('quote_number')}
-      报价日期：{data.get('quote_date')}"""
-)
+    body.text = (
+        f"项目名称：{data.get('project_name')}
+"
+        f"客户名称：{data.get('client_name')}
+"
+        f"联系方式：{data.get('contact')}
+"
+        f"报价编号：{data.get('quote_number')}
+"
+        f"报价日期：{data.get('quote_date')}"
+    )
     os.makedirs("generated_ppt", exist_ok=True)
     filename = f"confirmation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pptx"
     filepath = os.path.join("generated_ppt", filename)
     prs.save(filepath)
     return jsonify({"download_url": f"/download-ppt/{filename}"})
 
-
 @app.route("/download-ppt/<filename>", methods=["GET"])
 def download_ppt(filename):
     return send_file(os.path.join("generated_ppt", filename), as_attachment=True)
-
 
 @app.route("/folders/<folder_id>/list", methods=["GET"])
 def list_folder_files(folder_id):
@@ -51,7 +56,6 @@ def list_folder_files(folder_id):
     if response.status_code != 200:
         return jsonify({"error": response.text}), response.status_code
     return jsonify(response.json().get("files", []))
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

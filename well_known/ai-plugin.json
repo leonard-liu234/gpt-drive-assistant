@@ -1,3 +1,4 @@
+
 {
   "schema_version": "v1",
   "name_for_human": "GPT Drive Assistant",
@@ -9,10 +10,10 @@
   },
   "api": {
     "type": "openapi",
-    "url": "https://gpt-drive-assistant.onrender.com/static/openapi.yaml",
+    "url": "https://gpt-drive-assistant.onrender.com/openapi.yaml",
     "is_user_authenticated": false
   },
-  "logo_url": "https://gpt-drive-assistant.onrender.com/static/logo.png",
+  "logo_url": "https://gpt-drive-assistant.onrender.com/logo.png",
   "contact_email": "leo1992ljt@gmail.com",
   "legal_info_url": "https://gpt-drive-assistant.onrender.com/legal"
 }

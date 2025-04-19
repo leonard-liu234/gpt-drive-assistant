@@ -1,13 +1,12 @@
-openapi: 3.0.0
+
+openapi: 3.0.1
 info:
   title: GPT Drive Assistant API
-  version: "1.0"
-servers:
-  - url: https://gpt-drive-assistant.onrender.com
+  version: '1.0'
 paths:
   /generate-ppt:
     post:
-      summary: 生成PPT文件
+      summary: Generate PPT confirmation letter
       requestBody:
         required: true
         content:
@@ -26,37 +25,17 @@ paths:
                 quote_date:
                   type: string
       responses:
-        "200":
-          description: 返回PPT下载地址
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  download_url:
-                    type: string
+        '200':
+          description: Download URL
   /folders/{folder_id}/list:
     get:
-      summary: 获取指定Google Drive文件夹下的文件
+      summary: List files in Google Drive folder
       parameters:
-        - in: path
-          name: folder_id
+        - name: folder_id
+          in: path
           required: true
           schema:
             type: string
       responses:
-        "200":
-          description: 文件列表
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    mimeType:
-                      type: string
+        '200':
+          description: List of files
