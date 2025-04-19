@@ -1,6 +1,5 @@
-from flask import Flask, request, jsonify, send_file, send_from_directory
+from flask import Flask, request, jsonify, send_file
 from pptx import Presentation
-from pptx.util import Inches
 import os
 import requests
 from datetime import datetime
@@ -8,13 +7,9 @@ from datetime import datetime
 app = Flask(__name__)
 ACCESS_TOKEN = os.getenv("GDRIVE_ACCESS_TOKEN")
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
     return "✅ GPT Drive Assistant is running. Use /generate-ppt or /folders/<folder_id>/list to start."
-
-@app.route("/.well-known/ai-plugin.json")
-def serve_manifest():
-    return send_from_directory("well_known", "ai-plugin.json", mimetype="application/json")
 
 @app.route("/generate-ppt", methods=["POST"])
 def generate_ppt():
@@ -41,13 +36,17 @@ def generate_ppt():
     prs.save(filepath)
     return jsonify({"download_url": f"/download-ppt/{filename}"})
 
+
 @app.route("/download-ppt/<filename>", methods=["GET"])
 def download_ppt(filename):
     return send_file(os.path.join("generated_ppt", filename), as_attachment=True)
 
+
 @app.route("/folders/<folder_id>/list", methods=["GET"])
 def list_folder_files(folder_id):
-    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}"
+    }
     params = {
         "q": f"'{folder_id}' in parents",
         "fields": "files(id,name,mimeType)",
@@ -58,5 +57,6 @@ def list_folder_files(folder_id):
         return jsonify({"error": response.text}), response.status_code
     return jsonify(response.json().get("files", []))
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
