@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: gpt-drive-assistant
-    env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app"
-    envVars:
-      - key: GDRIVE_ACCESS_TOKEN
-        value: your-access-token-here
