@@ -1,8 +1,87 @@
 openapi: 3.1.0
 info:
-  title: GPT Drive + PPT Assistant
-version: 1.0.0
+  title: Google Drive PDF Reader
+  version: 1.0.0
+  description: Download PDF files from Google Drive for analysis.
+servers:
+  - url: https://www.googleapis.com/drive/v3
 paths:
-  /generate-ppt:
-    post:
-      summary: Generate a PowerPoint file
+  /files:
+    get:
+      operationId: listFiles
+      summary: List files in Drive
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        mimeType:
+                          type: string
+
+  /files/{fileId}:
+    get:
+      operationId: getFileMetadata
+      summary: Get file metadata by ID
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Metadata of the file
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  mimeType:
+                    type: string
+
+  /files/{fileId}/download:
+    get:
+      operationId: downloadPdf
+      summary: Download PDF content by file ID
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: PDF content
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
