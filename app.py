@@ -19,17 +19,12 @@ def generate_ppt():
     title = slide.shapes.title
     body = slide.placeholders[1]
     title.text = "确认函摘要"
-    body.text = (
-        f"项目名称：{data.get('project_name')}
-"
-        f"客户名称：{data.get('client_name')}
-"
-        f"联系方式：{data.get('contact')}
-"
-        f"报价编号：{data.get('quote_number')}
-"
-        f"报价日期：{data.get('quote_date')}"
-    )
+    body.text = f"""项目名称：{data.get('project_name')}
+      客户名称：{data.get('client_name')}
+      联系方式：{data.get('contact')}
+      报价编号：{data.get('quote_number')}
+      报价日期：{data.get('quote_date')}"""
+)
     os.makedirs("generated_ppt", exist_ok=True)
     filename = f"confirmation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pptx"
     filepath = os.path.join("generated_ppt", filename)
