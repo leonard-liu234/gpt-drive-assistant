@@ -1,5 +1,4 @@
-Flask
+flask
 requests
-gunicorn
 python-pptx
-...
+gunicorn
