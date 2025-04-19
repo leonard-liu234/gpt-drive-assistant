@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify, send_file
 from pptx import Presentation
 import os
@@ -11,6 +10,10 @@ ACCESS_TOKEN = os.getenv("GDRIVE_ACCESS_TOKEN")
 @app.route("/", methods=["GET"])
 def index():
     return "✅ GPT Drive Assistant is running. Use /generate-ppt or /folders/<folder_id>/list to start."
+
+@app.route("/.well-known/ai-plugin.json", methods=["GET"])
+def plugin_manifest():
+    return send_file("ai-plugin.json", mimetype="application/json")
 
 @app.route("/generate-ppt", methods=["POST"])
 def generate_ppt():
@@ -37,9 +40,18 @@ def download_ppt(filename):
 
 @app.route("/folders/<folder_id>/list", methods=["GET"])
 def list_folder_files(folder_id):
-    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-    params = {"q": f"'{folder_id}' in parents", "fields": "files(id,name,mimeType)", "pageSize": 100}
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}"
+    }
+    params = {
+        "q": f"'{folder_id}' in parents",
+        "fields": "files(id,name,mimeType)",
+        "pageSize": 100
+    }
     response = requests.get("https://www.googleapis.com/drive/v3/files", headers=headers, params=params)
     if response.status_code != 200:
         return jsonify({"error": response.text}), response.status_code
     return jsonify(response.json().get("files", []))
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
