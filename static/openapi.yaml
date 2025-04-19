@@ -1,80 +1,8 @@
 openapi: 3.1.0
 info:
   title: GPT Drive + PPT Assistant
-  version: 1.0.0
-  description: Generate PowerPoint confirmation slides from project info and interact with Google Drive files/folders.
-
-servers:
-  - url: https://gpt-drive-assistant.onrender.com
-
+version: 1.0.0
 paths:
-  /:
-    get:
-      operationId: healthCheck
-      summary: Check if the backend is running
-      responses:
-        "200":
-          description: Simple confirmation message
-          content:
-            text/plain:
-              schema:
-                type: string
-
   /generate-ppt:
     post:
-      operationId: generatePPT
-      summary: Generate a PowerPoint confirmation file based on project data
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                project_name:
-                  type: string
-                client_name:
-                  type: string
-                quote_number:
-                  type: string
-                quote_date:
-                  type: string
-                contact:
-                  type: string
-      responses:
-        "200":
-          description: Download URL for generated PowerPoint
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  download_url:
-                    type: string
-
-  /folders/{folderId}/list:
-    get:
-      operationId: listFolderFiles
-      summary: List all files in a Google Drive folder by folder ID
-      parameters:
-        - name: folderId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: A list of file metadata
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    mimeType:
-                      type: string
+      summary: Generate a PowerPoint file

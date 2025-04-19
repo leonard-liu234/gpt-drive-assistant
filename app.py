@@ -14,7 +14,7 @@ def index():
 
 @app.route("/.well-known/ai-plugin.json")
 def serve_manifest():
-    return send_from_directory(".well-known", "ai-plugin.json", mimetype="application/json")
+    return send_from_directory("well_known", "ai-plugin.json", mimetype="application/json")
 
 @app.route("/generate-ppt", methods=["POST"])
 def generate_ppt():
@@ -40,7 +40,6 @@ def generate_ppt():
     filepath = os.path.join("generated_ppt", filename)
     prs.save(filepath)
     return jsonify({"download_url": f"/download-ppt/{filename}"})
-
 
 @app.route("/download-ppt/<filename>", methods=["GET"])
 def download_ppt(filename):
