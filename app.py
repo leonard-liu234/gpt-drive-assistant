@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify, send_file
 from pptx import Presentation
 import os
@@ -47,12 +46,37 @@ def list_folder_files(folder_id):
     params = {
         "q": f"'{folder_id}' in parents",
         "fields": "files(id,name,mimeType)",
-        "pageSize": 100
+        "pageSize": 1000
     }
     response = requests.get("https://www.googleapis.com/drive/v3/files", headers=headers, params=params)
     if response.status_code != 200:
         return jsonify({"error": response.text}), response.status_code
     return jsonify(response.json().get("files", []))
+
+@app.route("/folders/<folder_id>/recursive-files", methods=["GET"])
+def list_recursive_files(folder_id):
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}"
+    }
+    all_files = []
+
+    def get_files_recursively(fid):
+        params = {
+            "q": f"'{fid}' in parents and trashed = false",
+            "fields": "files(id,name,mimeType)",
+            "pageSize": 1000
+        }
+        response = requests.get("https://www.googleapis.com/drive/v3/files", headers=headers, params=params)
+        if response.status_code != 200:
+            return
+        files = response.json().get("files", [])
+        for f in files:
+            all_files.append(f)
+            if f["mimeType"] == "application/vnd.google-apps.folder":
+                get_files_recursively(f["id"])
+
+    get_files_recursively(folder_id)
+    return jsonify(all_files)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
