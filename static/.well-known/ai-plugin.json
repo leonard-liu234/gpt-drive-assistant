@@ -2,8 +2,8 @@
   "schema_version": "v1",
   "name_for_human": "GPT Drive Assistant",
   "name_for_model": "gpt_drive_assistant",
-  "description_for_human": "生成确认函PPT，列出Google Drive文件。",
-  "description_for_model": "生成厨房确认函的PPT文件，并列出指定Google Drive文件夹中的文件。",
+  "description_for_human": "生成确认函PPT，并递归列出Google Drive文件",
+  "description_for_model": "生成厨房确认函的PPT文件，递归列出指定Google Drive文件夹及其子文件夹内的文件。",
   "auth": {
     "type": "none"
   },
