@@ -2,11 +2,12 @@
 openapi: 3.0.1
 info:
   title: GPT Drive Assistant API
-  version: '1.0'
+  description: Generate confirmation PPT and list Google Drive folder files.
+  version: 1.0.0
 paths:
   /generate-ppt:
     post:
-      summary: Generate PPT confirmation letter
+      summary: Generate a confirmation PPT
       requestBody:
         required: true
         content:
@@ -26,10 +27,10 @@ paths:
                   type: string
       responses:
         '200':
-          description: Download URL
+          description: A download link to the generated PPT
   /folders/{folder_id}/list:
     get:
-      summary: List files in Google Drive folder
+      summary: List files in a Google Drive folder
       parameters:
         - name: folder_id
           in: path
@@ -38,4 +39,4 @@ paths:
             type: string
       responses:
         '200':
-          description: List of files
+          description: A list of files
