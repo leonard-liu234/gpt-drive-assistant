@@ -6,8 +6,8 @@
   "description_for_model": "生成厨房确认图的PPT文件，并列出指定Google Drive文件夹中的文件。",
   "auth": {
     "type": "oauth",
-    "client_url": "https://gpt-drive-proxy.onrender.com/oauth/authorize",
-    "token_url": "https://gpt-drive-proxy.onrender.com/oauth/token",
+    "client_url": "https://gpt-drive-assistant.onrender.com/oauth/authorize",
+    "token_url": "https://gpt-drive-assistant.onrender.com/oauth/token",
     "scope": "https://www.googleapis.com/auth/drive"
   },
   "api": {
