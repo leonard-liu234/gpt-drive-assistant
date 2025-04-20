@@ -8,7 +8,7 @@
     "type": "oauth",
     "client_url": "https://gpt-drive-assistant.onrender.com/oauth/authorize",
     "token_url": "https://gpt-drive-assistant.onrender.com/oauth/token",
-    "scope": "https://www.googleapis.com/auth/drive"
+    "scope": "https://www.googleapis.com/auth/drive.readonly"
   },
   "api": {
     "type": "openapi",
