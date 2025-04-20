@@ -1,37 +1,35 @@
 openapi: 3.1.0
 info:
-  title: GPT Drive Assistant
+  title: GPT Drive Assistant API
   version: 1.0.0
-  description: Generate PowerPoint confirmation slides and access Google Drive folders/files.
+  description: List and download Google Drive files, generate PPT.
 servers:
   - url: https://gpt-drive-assistant.onrender.com
 paths:
   /:
     get:
+      summary: Health check
       operationId: healthCheck
-      summary: Check if backend is running
       responses:
         "200":
-          description: Health OK
-          content:
-            text/plain:
-              schema:
-                type: string
+          description: Running
+
   /.well-known/ai-plugin.json:
     get:
-      operationId: pluginManifest
-      summary: Get AI Plugin metadata
+      summary: Serve ai-plugin manifest
+      operationId: getManifest
       responses:
         "200":
-          description: AI Plugin Manifest
+          description: Manifest file
           content:
             application/json:
               schema:
                 type: object
+
   /folders/{folderId}/list:
     get:
-      operationId: listDriveFiles
-      summary: List all files in Drive folder (recursive)
+      summary: Recursively list all files in a Drive folder
+      operationId: listAllFiles
       parameters:
         - name: folderId
           in: path
@@ -40,7 +38,7 @@ paths:
             type: string
       responses:
         "200":
-          description: List of files
+          description: File metadata
           content:
             application/json:
               schema:
@@ -54,3 +52,35 @@ paths:
                       type: string
                     mimeType:
                       type: string
+
+  /generate-ppt:
+    post:
+      summary: Generate confirmation PowerPoint
+      operationId: generatePPT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                project_name:
+                  type: string
+                client_name:
+                  type: string
+                quote_number:
+                  type: string
+                quote_date:
+                  type: string
+                contact:
+                  type: string
+      responses:
+        "200":
+          description: Download URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  download_url:
+                    type: string
