@@ -1,19 +1,32 @@
 from flask import Flask, request, jsonify, send_file
-from pptx import Presentation
 import os
 import requests
+from pptx import Presentation
 from datetime import datetime
+from flask_cors import CORS
 
 app = Flask(__name__, static_folder="static", static_url_path="")
-ACCESS_TOKEN = os.getenv("GDRIVE_ACCESS_TOKEN")
+CORS(app)
 
 @app.route("/", methods=["GET"])
-def index():
-    return "✅ GPT Drive Assistant is running. Use /generate-ppt or /folders/<folder_id>/list to start."
+def health_check():
+    return "✅ GPT Drive Assistant is running"
 
 @app.route("/.well-known/ai-plugin.json", methods=["GET"])
 def plugin_manifest():
     return send_file("static/.well-known/ai-plugin.json", mimetype="application/json")
+
+@app.route("/openapi.yaml", methods=["GET"])
+def openapi_spec():
+    return send_file("static/openapi.yaml", mimetype="text/yaml")
+
+@app.route("/logo.png", methods=["GET"])
+def serve_logo():
+    return send_file("static/logo.png", mimetype="image/png")
+
+@app.route("/legal", methods=["GET"])
+def legal():
+    return "Legal information placeholder."
 
 @app.route("/generate-ppt", methods=["POST"])
 def generate_ppt():
@@ -39,44 +52,33 @@ def download_ppt(filename):
     return send_file(os.path.join("generated_ppt", filename), as_attachment=True)
 
 @app.route("/folders/<folder_id>/list", methods=["GET"])
-def list_folder_files(folder_id):
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}"
-    }
-    params = {
-        "q": f"'{folder_id}' in parents",
-        "fields": "files(id,name,mimeType)",
-        "pageSize": 1000
-    }
-    response = requests.get("https://www.googleapis.com/drive/v3/files", headers=headers, params=params)
-    if response.status_code != 200:
-        return jsonify({"error": response.text}), response.status_code
-    return jsonify(response.json().get("files", []))
-
-@app.route("/folders/<folder_id>/recursive-files", methods=["GET"])
-def list_recursive_files(folder_id):
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}"
-    }
+def list_drive_files(folder_id):
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
     all_files = []
 
-    def get_files_recursively(fid):
+    def fetch_folder_contents(fid):
         params = {
             "q": f"'{fid}' in parents and trashed = false",
             "fields": "files(id,name,mimeType)",
             "pageSize": 1000
         }
-        response = requests.get("https://www.googleapis.com/drive/v3/files", headers=headers, params=params)
-        if response.status_code != 200:
-            return
-        files = response.json().get("files", [])
-        for f in files:
-            all_files.append(f)
-            if f["mimeType"] == "application/vnd.google-apps.folder":
-                get_files_recursively(f["id"])
+        headers = {"Authorization": f"Bearer {token}"}
+        res = requests.get("https://www.googleapis.com/drive/v3/files", headers=headers, params=params)
+        if res.status_code == 200:
+            files = res.json().get("files", [])
+            for f in files:
+                all_files.append(f)
+                if f["mimeType"] == "application/vnd.google-apps.folder":
+                    fetch_folder_contents(f["id"])
+        else:
+            raise Exception(res.text)
 
-    get_files_recursively(folder_id)
-    return jsonify(all_files)
+    try:
+        fetch_folder_contents(folder_id)
+        return jsonify(all_files)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
+    app.secret_key = os.getenv("FLASK_SECRET_KEY", "199234xxx")
     app.run(host="0.0.0.0", port=5000)
